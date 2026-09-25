@@ -21,6 +21,7 @@ expfactory-deploy crawls a repository for folders containing a valid
 
 ```
 expfactory-task-demo/
+├── create_experiment.py   # scaffold a new experiment (run with `uv run`)
 └── flanker_demo/          # folder name == exp_id
     ├── config.json        # experiment metadata + list of files to load
     ├── experiment.js      # the jsPsych 7 timeline
@@ -88,7 +89,27 @@ expfactory_deploy_local -e flanker_demo    # from this repo's directory
 
 then open <http://0.0.0.0:8080/> in Chrome or Firefox.
 
-## Making your own task from this template
+## Creating a new experiment (quickstart)
+
+Requires [uv](https://docs.astral.sh/uv/). From the root of this repository:
+
+```bash
+uv run create_experiment.py
+```
+
+The script prompts for the required fields (experiment id, display name,
+contributors, estimated minutes) and creates a new folder
+`<exp_id>/` containing `config.json`, `experiment.js`, and `style.css`. The
+generated experiment is a copy of `flanker_demo` with the exp_id placeholders
+filled in — a working task you can deploy immediately and then customize. It
+uses only the Python standard library; `uv run` executes it without any
+environment setup.
+
+Then commit, push, and pull the latest commit into your experiment repository
+on <https://deploy.expfactory.org/> to make the new experiment available to
+batteries.
+
+## Making your own task from this template (manually)
 
 1. Copy `flanker_demo/` to a new folder, e.g. `my_task/`.
 2. Rename `exp_id` in `config.json` to `my_task`.
