@@ -1,0 +1,25 @@
+[
+  {
+    "name": "Flanker Task Demo",
+    "template": "jspsych",
+    "run": [
+      "static/jspsych7/jspsych.js",
+      "static/jspsych7/plugin-instructions.js",
+      "static/jspsych7/plugin-html-keyboard-response.js",
+      "static/jspsych7/plugin-call-function.js",
+      "static/jspsych7/plugin-fullscreen.js",
+      "static/jspsych7/jspsych.css",
+      "style.css",
+      "experiment.js"
+    ],
+    "exp_id": "flanker_demo",
+    "cognitive_atlas_task_id": "tsk_4a57abb949a4f",
+    "contributors": [
+      "Logan Bennett"
+    ],
+    "time": 3,
+    "reference": "https://link.springer.com/article/10.3758/BF03203267",
+    "notes": "Minimal demonstration of a jsPsych 7 cognitive task (Eriksen flanker) for expfactory-deploy. Response keys are counterbalanced via the battery group_index.",
+    "publish": "True"
+  }
+]
