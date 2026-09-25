@@ -77,17 +77,91 @@ expfactory-task-demo/
 3. Add the experiment to a battery and open the battery link (or use the
    experiment preview) to run it.
 
-## Running locally
+## Running locally with expfactory-deploy-local
 
-Using [`expfactory-deploy-local`](https://github.com/expfactory/expfactory-deploy)
-(see the `expfactory_deploy_local` package):
+[`expfactory-deploy-local`](https://github.com/expfactory/expfactory-deploy)
+is a lightweight local server that runs experiments exactly the way
+deploy.expfactory.org does (same template, same boot sequence) and saves data
+to local files instead of a database. Use it to test tasks before deploying.
+
+### Setup
 
 ```bash
-pip install -e ./expfactory-deploy-local   # from the expfactory-deploy repo
-expfactory_deploy_local -e flanker_demo    # from this repo's directory
+# 1. Clone the expfactory-deploy repository (contains expfactory_deploy_local)
+git clone https://github.com/expfactory/expfactory-deploy
+cd expfactory-deploy
+
+# 2. Create a virtual environment and install the local deployment package.
+#    With uv:
+uv venv
+source .venv/bin/activate
+uv pip install -e expfactory_deploy_local
+
+#    ...or with plain pip:
+#    python3 -m venv .venv
+#    source .venv/bin/activate
+#    pip install -e expfactory_deploy_local
 ```
 
-then open <http://0.0.0.0:8080/> in Chrome or Firefox.
+Note: the package directory is `expfactory_deploy_local` (with underscores),
+inside the `expfactory-deploy` repo.
+
+### Running an experiment
+
+From the root of *this* repository (with the virtual environment activated):
+
+```bash
+expfactory_deploy_local -e flanker_demo
+```
+
+Then open <http://localhost:8080/> in Chrome or Firefox. If port 8080 is busy
+the server tries the next port — check the terminal output for the actual port.
+
+Useful options:
+
+```bash
+# Inject a group_index (exposed to the task as window.efVars.group_index)
+expfactory_deploy_local -e flanker_demo -gi 1
+
+# Serve several experiments as a battery (comma-separated paths)
+expfactory_deploy_local -e flanker_demo,another_task
+
+# BIDS-style data output
+expfactory_deploy_local -e flanker_demo -sub 01 -ses 1 -run 1 \
+    -raw ./data/raw -bids ./data/bids
+```
+
+`-e` accepts paths, so it also works from anywhere with an absolute path,
+e.g. `expfactory_deploy_local -e /path/to/expfactory_task_demo/flanker_demo`.
+
+### Local data output
+
+Data is saved on **every** POST the page makes — both the mid-experiment
+`window.dataSync()` sync and the final save when the timeline finishes. Each
+POST writes a raw JSON payload to the current directory (or to `-raw` if
+given, using `sub-<id>/ses-<n>/` subdirectories when `-sub`/`-ses` are set):
+
+```
+task-<exp_id>_dateTime-<timestamp>.json
+```
+
+The file from the final POST contains the complete dataset: the `trialdata`
+field holds every jsPsych data row, and `interactionData` records browser
+focus/blur events. (A JSON from a mid-experiment sync contains only the data
+collected up to that point.)
+
+CSV events files (`task-<exp_id>.csv`) are only written for fMRI task
+variants — experiment folders whose name contains `__fmri` — when `-bids` is
+given, e.g. `expfactory_deploy_local -e flanker_demo__fmri -bids ./data/bids`.
+For quick CSV conversion of the raw JSON:
+
+```bash
+uv run --with pandas python -c "
+import json, pandas as pd
+d = json.load(open('task-flanker_demo_dateTime-<timestamp>.json'))
+pd.DataFrame(json.loads(d['trialdata'])).to_csv('flanker_demo.csv', index=False)
+"
+```
 
 ## Creating a new experiment (quickstart)
 

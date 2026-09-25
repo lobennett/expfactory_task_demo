@@ -1,1 +1,6 @@
 .DS_Store
+
+# expfactory-deploy-local runtime artifacts
+static
+task-*_dateTime-*.json
+data/
